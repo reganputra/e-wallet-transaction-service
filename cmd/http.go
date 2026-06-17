@@ -22,12 +22,13 @@ func ServerHttp() {
 		HealthCheckService: healthCheckSvc,
 	}
 
-	// deps := InitializeDependencies()
+	deps := InitializeDependencies()
 
 	r := gin.Default()
 	r.GET("/health", healthCheckApi.HealthCheckHandler)
 
-	// walletV1 := r.Group("/transaction/v1")
+	transactionV1 := r.Group("/transaction/v1")
+	transactionV1.POST("/create", deps.MiddlewareValidateToken, deps.Transaction.CreateTransaction)
 
 	err := r.Run(":" + helpers.GetEnv("PORT", "8080"))
 	if err != nil {
@@ -36,14 +37,26 @@ func ServerHttp() {
 }
 
 type Dependency struct {
-	External interfaces.IExternal
+	Transaction interfaces.ITransactionHandler
+	External    interfaces.IExternal
 }
 
 func InitializeDependencies() Dependency {
 
+	trxRepo := &repository.TransactionRepo{
+		DB: helpers.DB,
+	}
+	trxSvc := &service.TransactionService{
+		TransactionRepo: trxRepo,
+	}
+	trxHandler := &api.TransactionApi{
+		TransactionService: trxSvc,
+	}
+
 	external := &external.External{}
 
 	return Dependency{
-		External: external,
+		Transaction: trxHandler,
+		External:    external,
 	}
 }
