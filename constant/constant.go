@@ -25,3 +25,9 @@ var MapTransaction = map[string]bool{
 	TransactionTypePurchase: true,
 	TransactionTypeRefund:   true,
 }
+
+var MapTransactionStatusFlow = map[string][]string{
+	TransactionStatusPending: {TransactionStatusSuccess, TransactionStatusFailed},
+	TransactionStatusSuccess: {TransactionStatusReversed},
+	TransactionStatusFailed:  {TransactionStatusSuccess},
+}
