@@ -153,3 +153,38 @@ func (h *TransactionApi) GetTransactionDetail(c *gin.Context) {
 	}
 	helpers.SendResponseHTTP(c, http.StatusOK, constant.Success, resp)
 }
+
+func (h *TransactionApi) RefundTransaction(c *gin.Context) {
+
+	var (
+		log = helpers.Logger
+		req models.RefundTransaction
+	)
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Error("failed to parse request", err)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constant.ErrFailedBadRequest, nil)
+		return
+	}
+
+	token, ok := c.Get("token")
+	if !ok {
+		log.Error("Token claim not found in context")
+		helpers.SendResponseHTTP(c, http.StatusUnauthorized, "Token claim not found", nil)
+	}
+	tokenData, ok := token.(models.TokenData)
+	if !ok {
+		log.Error("Token claim is not of type models.TokenData")
+		helpers.SendResponseHTTP(c, http.StatusUnauthorized, "Invalid token claim", nil)
+		return
+	}
+
+	resp, err := h.TransactionService.RefundTransaction(c.Request.Context(), tokenData, &req)
+	if err != nil {
+		log.Error("failed to refund transaction", err)
+		helpers.SendResponseHTTP(c, http.StatusInternalServerError, constant.ErrFailedBadRequest, nil)
+		return
+	}
+
+	helpers.SendResponseHTTP(c, http.StatusOK, constant.Success, resp)
+}
