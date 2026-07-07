@@ -164,6 +164,10 @@ func (s *TransactionService) RefundTransaction(ctx context.Context, tokenData mo
 	}
 
 	refundReference := "REFUND-" + req.Reference
+	_, err = s.TransactionRepo.GetTransactionByReference(ctx, refundReference, true)
+	if err != nil {
+		return resp, errors.New("refund already processed")
+	}
 	reqCreditBalance := external.UpdateBalance{
 		Reference: refundReference,
 		Amount:    trx.Amount,
