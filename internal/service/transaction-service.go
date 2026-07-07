@@ -134,3 +134,14 @@ func (s *TransactionService) UpdateStatusTransaction(ctx context.Context, tokenD
 
 	return nil
 }
+
+func (s *TransactionService) GetTransaction(ctx context.Context, userId int) ([]models.Transaction, error) {
+
+	return s.TransactionRepo.GetTransaction(ctx, userId)
+}
+
+func (s *TransactionService) GetTransactionDetail(ctx context.Context, reference string) (models.Transaction, error) {
+
+	return s.TransactionRepo.GetTransactionByReference(ctx, reference, true)
+
+}

@@ -29,6 +29,8 @@ func ServerHttp() {
 
 	transactionV1 := r.Group("/transaction/v1")
 	transactionV1.POST("/create", deps.MiddlewareValidateToken, deps.Transaction.CreateTransaction)
+	transactionV1.GET("/", deps.MiddlewareValidateToken, deps.Transaction.GetTransaction)
+	transactionV1.GET("/:reference", deps.MiddlewareValidateToken, deps.Transaction.GetTransactionDetail)
 	transactionV1.PUT("/update-status/:reference", deps.MiddlewareValidateToken, deps.Transaction.UpdateStatusTransaction)
 
 	err := r.Run(":" + helpers.GetEnv("PORT", "8080"))
@@ -59,8 +61,7 @@ func InitializeDependencies() Dependency {
 	}
 
 	return Dependency{
-		Transaction:    trxHandler,
-		External:       external,
-		TransactionApi: trxHandler,
+		Transaction: trxHandler,
+		External:    external,
 	}
 }
