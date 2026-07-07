@@ -29,6 +29,7 @@ func ServerHttp() {
 
 	transactionV1 := r.Group("/transaction/v1")
 	transactionV1.POST("/create", deps.MiddlewareValidateToken, deps.Transaction.CreateTransaction)
+	transactionV1.PUT("/update-status/:reference", deps.MiddlewareValidateToken, deps.Transaction.UpdateStatusTransaction)
 
 	err := r.Run(":" + helpers.GetEnv("PORT", "8080"))
 	if err != nil {
@@ -37,26 +38,29 @@ func ServerHttp() {
 }
 
 type Dependency struct {
-	Transaction interfaces.ITransactionHandler
-	External    interfaces.IExternal
+	Transaction    interfaces.ITransactionHandler
+	External       interfaces.IExternal
+	TransactionApi interfaces.ITransactionHandler
 }
 
 func InitializeDependencies() Dependency {
+
+	external := &external.External{}
 
 	trxRepo := &repository.TransactionRepo{
 		DB: helpers.DB,
 	}
 	trxSvc := &service.TransactionService{
 		TransactionRepo: trxRepo,
+		External:        external,
 	}
 	trxHandler := &api.TransactionApi{
 		TransactionService: trxSvc,
 	}
 
-	external := &external.External{}
-
 	return Dependency{
-		Transaction: trxHandler,
-		External:    external,
+		Transaction:    trxHandler,
+		External:       external,
+		TransactionApi: trxHandler,
 	}
 }

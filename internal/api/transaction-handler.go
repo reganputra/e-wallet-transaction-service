@@ -56,3 +56,41 @@ func (h *TransactionApi) CreateTransaction(c *gin.Context) {
 
 	helpers.SendResponseHTTP(c, http.StatusOK, constant.Success, resp)
 }
+
+func (h *TransactionApi) UpdateStatusTransaction(c *gin.Context) {
+
+	var (
+		log = helpers.Logger
+		req models.UpdateStatusTransaction
+	)
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Error("failed to parse request", err)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constant.ErrFailedBadRequest, nil)
+		return
+	}
+	req.Reference = c.Param("reference")
+	if err := req.Validate(); err != nil {
+		log.Error("failed to validate request: ", err)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constant.ErrFailedBadRequest, nil)
+		return
+	}
+	token, ok := c.Get("token")
+	if !ok {
+		log.Error("Token claim not found in context")
+		helpers.SendResponseHTTP(c, http.StatusUnauthorized, "Token claim not found", nil)
+	}
+	tokenData, ok := token.(models.TokenData)
+	if !ok {
+		log.Error("Token claim is not of type models.TokenData")
+		helpers.SendResponseHTTP(c, http.StatusUnauthorized, "Invalid token claim", nil)
+		return
+	}
+	err := h.TransactionService.UpdateStatusTransaction(c.Request.Context(), tokenData, &req)
+	if err != nil {
+		log.Error("failed to update transaction status", err)
+		helpers.SendResponseHTTP(c, http.StatusInternalServerError, constant.ErrFailedBadRequest, nil)
+		return
+	}
+	helpers.SendResponseHTTP(c, http.StatusOK, constant.Success, nil)
+}

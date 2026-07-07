@@ -1,5 +1,7 @@
 package constant
 
+import "time"
+
 const (
 	Success               = "Success"
 	ErrFailedParseRequest = "Failed to parse request"
@@ -31,3 +33,7 @@ var MapTransactionStatusFlow = map[string][]string{
 	TransactionStatusSuccess: {TransactionStatusReversed},
 	TransactionStatusFailed:  {TransactionStatusSuccess},
 }
+
+const (
+	MaximumReversedDuration = time.Hour * 24
+)

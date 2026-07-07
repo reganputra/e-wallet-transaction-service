@@ -26,6 +26,8 @@ func (d *Dependency) MiddlewareValidateToken(c *gin.Context) {
 		c.Abort()
 	}
 
+	tokenData.Token = auth
+
 	c.Set("token", tokenData)
 
 	c.Next()

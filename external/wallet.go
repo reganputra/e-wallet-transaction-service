@@ -22,7 +22,7 @@ type UpdateBalanceResponse struct {
 	} `json:"data"`
 }
 
-func (*External) CreditBalance(ctx context.Context, req UpdateBalance) (*UpdateBalanceResponse, error) {
+func (*External) CreditBalance(ctx context.Context, token string, req UpdateBalance) (*UpdateBalanceResponse, error) {
 
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -34,6 +34,7 @@ func (*External) CreditBalance(ctx context.Context, req UpdateBalance) (*UpdateB
 	if err != nil {
 		return nil, errors.New("failed create http request")
 	}
+	httpReq.Header.Set("Authorization", token)
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {
@@ -53,7 +54,7 @@ func (*External) CreditBalance(ctx context.Context, req UpdateBalance) (*UpdateB
 	return result, nil
 }
 
-func (*External) DebitBalance(ctx context.Context, req UpdateBalance) (*UpdateBalanceResponse, error) {
+func (*External) DebitBalance(ctx context.Context, token string, req UpdateBalance) (*UpdateBalanceResponse, error) {
 
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -65,6 +66,7 @@ func (*External) DebitBalance(ctx context.Context, req UpdateBalance) (*UpdateBa
 	if err != nil {
 		return nil, errors.New("failed create http request")
 	}
+	httpReq.Header.Set("Authorization", token)
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {

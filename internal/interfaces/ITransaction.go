@@ -8,13 +8,17 @@ import (
 )
 
 type ITransactionRepo interface {
-	CreateTransaction(ctx context.Context, data models.Transaction) error
+	CreateTransaction(ctx context.Context, data *models.Transaction) error
+	UpdateStatusTransaction(ctx context.Context, reference string, status string, additionalInfo string) error
+	GetTransactionByReference(context.Context, string, bool) (models.Transaction, error)
 }
 
 type ITransactionSvc interface {
 	CreateTransaction(ctx context.Context, data models.Transaction) (models.CreateTransactionResponse, error)
+	UpdateStatusTransaction(ctx context.Context, tokenData models.TokenData, req *models.UpdateStatusTransaction) error
 }
 
 type ITransactionHandler interface {
 	CreateTransaction(c *gin.Context)
+	UpdateStatusTransaction(c *gin.Context)
 }
