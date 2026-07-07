@@ -166,7 +166,11 @@ func (h *TransactionApi) RefundTransaction(c *gin.Context) {
 		helpers.SendResponseHTTP(c, http.StatusBadRequest, constant.ErrFailedBadRequest, nil)
 		return
 	}
-
+	if err := req.Validate(); err != nil {
+		log.Error("failed to validate request: ", err)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constant.ErrFailedBadRequest, nil)
+		return
+	}
 	token, ok := c.Get("token")
 	if !ok {
 		log.Error("Token claim not found in context")
