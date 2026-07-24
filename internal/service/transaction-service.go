@@ -132,7 +132,22 @@ func (s *TransactionService) UpdateStatusTransaction(ctx context.Context, tokenD
 		return errors.New("failed to update transaction status")
 	}
 
+	trx.TransactionStatus = req.TransactionStatus
+
+	s.sendNotification(ctx, tokenData, trx)
+
 	return nil
+}
+
+func (s *TransactionService) sendNotification(ctx context.Context, tokenData models.TokenData, trx models.Transaction) {
+	if trx.TransactionType == constant.TransactionTypePurchase && trx.TransactionStatus == constant.TransactionStatusSuccess {
+		s.External.SendNotification(ctx, tokenData.Email, "purchase_success", map[string]string{
+			"full_name":   tokenData.FullName,
+			"description": trx.Description,
+			"reference":   trx.Reference,
+			"date":        trx.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
 }
 
 func (s *TransactionService) GetTransaction(ctx context.Context, userId int) ([]models.Transaction, error) {
